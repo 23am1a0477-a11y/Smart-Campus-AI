@@ -110,6 +110,72 @@ Matplotlib
 
 Designed for scalable deployment on cloud infrastructure and AMD-powered systems for efficient AI computation.
 
+
+
+CODE 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import IsolationForest
+
+print("Smart Campus AI Prototype")
+
+# 1️⃣ Generate Dataset
+np.random.seed(42)
+days = 180
+
+data = pd.DataFrame({
+    "Day": np.arange(days),
+    "Temperature": np.random.normal(30, 5, days),
+    "Occupancy": np.random.randint(200, 400, days)
+})
+
+data["Energy_kWh"] = (
+    50 + data["Temperature"]*2 +
+    data["Occupancy"]*0.1 +
+    np.random.normal(0,5,days)
+)
+
+# 2️⃣ Prediction Model
+X = data[["Temperature","Occupancy"]]
+y = data["Energy_kWh"]
+
+model = LinearRegression()
+model.fit(X,y)
+
+prediction = model.predict([[32,350]])[0]
+print("Predicted Energy Tomorrow:", round(prediction,2),"kWh")
+
+# 3️⃣ Anomaly Detection
+iso = IsolationForest(contamination=0.05)
+data["Anomaly"] = iso.fit_predict(data[["Energy_kWh"]])
+
+anomaly_count = len(data[data["Anomaly"]==-1])
+print("Anomalies Detected:", anomaly_count)
+
+# 4️⃣ Carbon Calculation
+EMISSION_FACTOR = 0.82
+data["CO2"] = data["Energy_kWh"] * EMISSION_FACTOR
+
+total_co2 = data["CO2"].sum()
+print("Total CO2 Emission:", round(total_co2,0),"kg")
+
+# 5️⃣ Savings Estimate
+avg_energy = data["Energy_kWh"].mean()
+monthly_savings = avg_energy * 0.10 * 30 * 8
+print("Estimated Monthly Savings: ₹", round(monthly_savings,0))
+
+# 6️⃣ Visualization
+plt.figure(figsize=(10,5))
+plt.scatter(data["Day"], data["Energy_kWh"], c=data["Anomaly"], cmap="coolwarm")
+plt.title("Energy Consumption with Anomaly Detection")
+plt.xlabel("Day")
+plt.ylabel("Energy (kWh)")
+plt.show()
+
+
+
 📊 Prototype Results
 
 Predicted Energy Tomorrow: ~149 kWh
